@@ -1,7 +1,8 @@
 import optuna
-
+from optuna.samplers import TPESampler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+
 from sklearn.pipeline import Pipeline
 
 from preprocessing import create_preprocessor
@@ -25,13 +26,13 @@ def optuna_tuning(X_train, y_train, n_trials=100):
             max_depth=trial.suggest_int(
                 "max_depth",
                 3,
-                30,
+                15,
             ),
 
             min_samples_split=trial.suggest_int(
                 "min_samples_split",
                 2,
-                20,
+                8,
             ),
 
             min_samples_leaf=trial.suggest_int(
@@ -45,7 +46,6 @@ def optuna_tuning(X_train, y_train, n_trials=100):
                 [
                     "sqrt",
                     "log2",
-                    None,
                 ],
             ),
 
@@ -70,15 +70,20 @@ def optuna_tuning(X_train, y_train, n_trials=100):
             pipeline,
             X_train,
             y_train,
-            cv=5,
+            cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
             scoring="accuracy",
             n_jobs=-1,
         )
 
         return scores.mean()
 
+    sampler = TPESampler(
+        seed=RANDOM_STATE,
+    )
+
     study = optuna.create_study(
         direction="maximize",
+        sampler=sampler,
     )
 
     study.optimize(

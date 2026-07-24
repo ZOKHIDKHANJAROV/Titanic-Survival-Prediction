@@ -45,9 +45,15 @@ NUMERIC_FEATURES = [
     "SibSp",
     "Parch",
     "Pclass",
+    "FamilySize",
+    "IsAlone",
+    "FarePerPerson",
 ]
 
 CATEGORICAL_FEATURES = [
     "Sex",
     "Embarked",
+    "Title",
+    "Deck",
+    "AgeGroup",
 ]
