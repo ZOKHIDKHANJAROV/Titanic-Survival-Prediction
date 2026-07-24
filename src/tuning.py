@@ -1,78 +1,120 @@
-from sklearn.model_selection import GridSearchCV
+import optuna
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.pipeline import Pipeline
+
+from preprocessing import create_preprocessor
+from config import RANDOM_STATE
 
 
-def grid_search_tuning(
-    pipeline,
-    X_train,
-    y_train,
-):
+def optuna_tuning(X_train, y_train, n_trials=100):
     """
-    Подбирает лучшие гиперпараметры
-    для модели.
+    Подбор гиперпараметров RandomForest с помощью Optuna.
     """
 
-    param_grid = {
+    def objective(trial):
 
-        "model__n_estimators": [
-            100,
-            200,
-            300,
-        ],
+        model = RandomForestClassifier(
+            n_estimators=trial.suggest_int(
+                "n_estimators",
+                100,
+                500,
+            ),
 
-        "model__max_depth": [
-            None,
-            5,
-            10,
-            20,
-        ],
+            max_depth=trial.suggest_int(
+                "max_depth",
+                3,
+                30,
+            ),
 
-        "model__min_samples_split": [
-            2,
-            5,
-            10,
-        ],
+            min_samples_split=trial.suggest_int(
+                "min_samples_split",
+                2,
+                20,
+            ),
 
-        "model__min_samples_leaf": [
-            1,
-            2,
-            4,
-        ],
+            min_samples_leaf=trial.suggest_int(
+                "min_samples_leaf",
+                1,
+                10,
+            ),
 
-        "model__max_features": [
-            "sqrt",
-            "log2",
-            None,
-        ],
-    }
+            max_features=trial.suggest_categorical(
+                "max_features",
+                [
+                    "sqrt",
+                    "log2",
+                    None,
+                ],
+            ),
 
-    grid_search = GridSearchCV(
-        estimator=pipeline,
-        param_grid=param_grid,
-        cv=5,
-        scoring="accuracy",
-        n_jobs=-1,
-        verbose=2,
-        return_train_score=True,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+        )
+
+        pipeline = Pipeline(
+            steps=[
+                (
+                    "preprocessor",
+                    create_preprocessor(),
+                ),
+                (
+                    "model",
+                    model,
+                ),
+            ]
+        )
+
+        scores = cross_val_score(
+            pipeline,
+            X_train,
+            y_train,
+            cv=5,
+            scoring="accuracy",
+            n_jobs=-1,
+        )
+
+        return scores.mean()
+
+    study = optuna.create_study(
+        direction="maximize",
     )
 
-    grid_search.fit(
+    study.optimize(
+        objective,
+        n_trials=n_trials,
+        show_progress_bar=True,
+    )
+
+    print("=" * 60)
+    print("Optuna finished")
+    print("=" * 60)
+    print(f"Best score : {study.best_value:.4f}")
+    print(f"Best params: {study.best_params}")
+
+    best_model = RandomForestClassifier(
+        **study.best_params,
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+    )
+
+    pipeline = Pipeline(
+        steps=[
+            (
+                "preprocessor",
+                create_preprocessor(),
+            ),
+            (
+                "model",
+                best_model,
+            ),
+        ]
+    )
+
+    pipeline.fit(
         X_train,
         y_train,
     )
 
-    print("=" * 60)
-    print("Grid Search Finished")
-    print("=" * 60)
-
-    print()
-
-    print(f"Best Score : {grid_search.best_score_:.4f}")
-
-    print()
-
-    print("Best Parameters")
-
-    for key, value in grid_search.best_params_.items():
-        print(f"{key}: {value}")
-
-    return grid_search.best_estimator_
+    return pipeline, study
