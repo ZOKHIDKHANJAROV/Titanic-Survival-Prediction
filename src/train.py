@@ -12,13 +12,10 @@ from config import (
 
 from feature_engineering import add_features
 from preprocessing import drop_columns
-
 from model import build_pipeline
-from tuning import grid_search_tuning
-
 from evaluate import evaluate_model
 from utils import save_model
-
+from tuning import optuna_tuning
 
 def load_data():
 
@@ -58,10 +55,10 @@ def train():
         "random_forest",
     )
 
-    best_model = grid_search_tuning(
-        pipeline,
+    best_model, study = optuna_tuning(
         X_train,
         y_train,
+        n_trials=100,
     )
 
     print()
