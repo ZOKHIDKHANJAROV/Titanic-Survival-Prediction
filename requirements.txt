@@ -8,3 +8,5 @@ joblib
 jupyter
 ipykernel
 optuna
+mlflow>=3.1
+sqlalchemy

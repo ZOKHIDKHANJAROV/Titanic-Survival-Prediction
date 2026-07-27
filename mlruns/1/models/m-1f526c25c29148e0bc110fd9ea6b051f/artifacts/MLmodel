@@ -1,0 +1,23 @@
+artifact_path: file:D:/PET_project/Titanic-Survival-Prediction/mlruns/1/models/m-1f526c25c29148e0bc110fd9ea6b051f/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.5
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: pickle
+    sklearn_version: 1.9.0
+    skops_trusted_types: null
+mlflow_version: 3.14.0
+model_id: m-1f526c25c29148e0bc110fd9ea6b051f
+model_size_bytes: 3029658
+model_uuid: m-1f526c25c29148e0bc110fd9ea6b051f
+prompts: null
+run_id: 3f8260c3a3394b4aac26c97923432396
+utc_time_created: '2026-07-27 06:59:36.323154'

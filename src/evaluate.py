@@ -1,45 +1,60 @@
 from sklearn.metrics import (
     accuracy_score,
-    classification_report,
-    confusion_matrix,
-    f1_score,
     precision_score,
     recall_score,
+    f1_score,
     roc_auc_score,
+    confusion_matrix,
+    classification_report,
 )
 
 
-def evaluate_model(model, X_valid, y_valid):
-    """
-    Оценивает модель и выводит основные метрики.
-    """
+def calculate_metrics(
+    model,
+    X,
+    y,
+):
 
-    predictions = model.predict(X_valid)
+    prediction = model.predict(X)
 
-    probabilities = model.predict_proba(X_valid)[:, 1]
+    probability = model.predict_proba(X)[:, 1]
 
-    accuracy = accuracy_score(y_valid, predictions)
+    metrics = {
+        "accuracy": accuracy_score(y, prediction),
+        "precision": precision_score(y, prediction),
+        "recall": recall_score(y, prediction),
+        "f1": f1_score(y, prediction),
+        "roc_auc": roc_auc_score(y, probability),
+    }
 
-    precision = precision_score(y_valid, predictions)
+    return metrics, prediction
 
-    recall = recall_score(y_valid, predictions)
 
-    f1 = f1_score(y_valid, predictions)
+def print_metrics(
+    metrics,
+    y_true,
+    y_pred,
+):
 
-    roc_auc = roc_auc_score(y_valid, probabilities)
+    print("=" * 60)
+    print("Validation")
+    print("=" * 60)
 
-    print("=" * 50)
-    print("Model Evaluation")
-    print("=" * 50)
+    for key, value in metrics.items():
+        print(f"{key:10}: {value:.4f}")
 
-    print(f"Accuracy : {accuracy:.4f}")
-    print(f"Precision: {precision:.4f}")
-    print(f"Recall   : {recall:.4f}")
-    print(f"F1-score : {f1:.4f}")
-    print(f"ROC-AUC  : {roc_auc:.4f}")
+    print()
 
-    print("\nConfusion Matrix")
-    print(confusion_matrix(y_valid, predictions))
+    print("Confusion Matrix")
 
-    print("\nClassification Report")
-    print(classification_report(y_valid, predictions))
+    print(confusion_matrix(
+        y_true,
+        y_pred,
+    ))
+
+    print()
+
+    print(classification_report(
+        y_true,
+        y_pred,
+    ))

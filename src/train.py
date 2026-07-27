@@ -1,6 +1,7 @@
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+
 from config import (
     TRAIN_DATA,
     TARGET,
@@ -11,10 +12,24 @@ from config import (
 
 from feature_engineering import add_features
 from preprocessing import drop_columns
-from model import build_pipeline
-from evaluate import evaluate_model
-from utils import save_model
+
 from tuning import optuna_tuning
+
+from evaluate import (
+    calculate_metrics,
+    print_metrics,
+)
+
+from mlflow_utils import (
+    setup_mlflow,
+    start_run,
+    end_run,
+    log_params,
+    log_metrics,
+    log_model,
+)
+
+from utils import save_model
 
 def load_data():
 
@@ -48,39 +63,60 @@ def prepare_data():
 
 def train():
 
-    X_train, X_valid, y_train, y_valid = prepare_data()
-
-    pipeline = build_pipeline(
-        "random_forest",
+    setup_mlflow(
+        experiment_name="Titanic RandomForest",
     )
 
-    best_model, study = optuna_tuning(
-        X_train,
-        y_train,
-        n_trials=100,
+    run = start_run(
+        run_name="Optuna RandomForest",
     )
 
-    print()
+    try:
 
-    print("=" * 60)
-    print("Validation")
-    print("=" * 60)
+        X_train, X_valid, y_train, y_valid = prepare_data()
 
-    evaluate_model(
-        best_model,
-        X_valid,
-        y_valid,
-    )
+        best_model, study = optuna_tuning(
+            X_train,
+            y_train,
+            n_trials=100,
+        )
 
-    save_model(
-        best_model,
-        MODEL_FILE,
-    )
+        metrics, prediction = calculate_metrics(
+            best_model,
+            X_valid,
+            y_valid,
+        )
 
-    print()
+        print_metrics(
+            metrics,
+            y_valid,
+            prediction,
+        )
 
-    print("Model saved successfully.")
+        log_params(
+            study.best_params,
+        )
 
+        log_metrics(
+            metrics,
+        )
+
+        log_model(
+            best_model,
+        )
+
+        save_model(
+            best_model,
+            MODEL_FILE,
+        )
+
+        print()
+
+        print("Model saved successfully.")
+
+    finally:
+
+        end_run()
 
 def main():
 

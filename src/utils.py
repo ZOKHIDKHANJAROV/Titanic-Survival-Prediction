@@ -1,7 +1,6 @@
 from pathlib import Path
 import joblib
 
-
 def create_directory(path):
     """
     Создает директорию, если ее нет.
@@ -13,9 +12,11 @@ def create_directory(path):
     )
 
 def save_model(model, path):
-    """
-    Сохраняет модель.
-    """
+
+    Path(path).parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     joblib.dump(
         model,
