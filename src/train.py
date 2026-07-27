@@ -1,7 +1,7 @@
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-
+from mlflow.models import infer_signature
 from config import (
     TRAIN_DATA,
     TARGET,
@@ -28,8 +28,9 @@ from mlflow_utils import (
     log_metrics,
     log_model,
 )
-
 from utils import save_model
+from visualization import save_confusion_matrix
+from mlflow_utils import (log_artifact)
 
 def load_data():
 
@@ -86,7 +87,10 @@ def train():
             X_valid,
             y_valid,
         )
-
+        signature = infer_signature(
+            X_valid,
+            prediction,
+        )
         print_metrics(
             metrics,
             y_valid,
@@ -101,13 +105,23 @@ def train():
             metrics,
         )
 
-        log_model(
-            best_model,
+        model_info = log_model(
+            model=best_model,
+            X_example=X_valid,
         )
 
         save_model(
             best_model,
             MODEL_FILE,
+        )
+        cm_path = save_confusion_matrix(
+            best_model,
+            X_valid,
+            y_valid,
+        )
+
+        log_artifact(
+            cm_path,
         )
 
         print()

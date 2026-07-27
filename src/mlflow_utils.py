@@ -1,6 +1,6 @@
 import mlflow
 import mlflow.sklearn
-
+from mlflow.models import infer_signature
 
 def setup_mlflow(
     experiment_name: str,
@@ -48,16 +48,26 @@ def log_metrics(metrics: dict):
         mlflow.log_metrics(metrics)
 
 
-def log_model(model, artifact_path="model"):
-    """
-    Сохранение модели.
-    """
+def log_model(
+    model,
+    X_example,
+):
+    prediction = model.predict(X_example)
 
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        name=artifact_path,
-        serialization_format="pickle",
+    signature = infer_signature(
+        X_example,
+        prediction,
     )
+
+    model_info = mlflow.sklearn.log_model(
+        sk_model=model,
+        name="model",
+        signature=signature,
+        input_example=X_example.head(5),
+        serialization_format="cloudpickle",
+    )
+
+    return model_info
 
 
 def log_artifact(path):
