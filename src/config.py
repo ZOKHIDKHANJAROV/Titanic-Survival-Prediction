@@ -1,36 +1,27 @@
 from pathlib import Path
 
-# ==========================================
-# Paths
-# ==========================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 DATA_DIR = BASE_DIR / "data"
-
 MODEL_DIR = BASE_DIR / "models"
-
 REPORT_DIR = BASE_DIR / "reports"
 
 TRAIN_DATA = DATA_DIR / "train.csv"
-
 TEST_DATA = DATA_DIR / "test.csv"
+PARAMS_FILE = BASE_DIR / "params.yaml"
 
-MODEL_FILE = MODEL_DIR / "titanic_model.pkl"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+TRAIN_SPLIT_FILE = PROCESSED_DATA_DIR / "train.csv"
+VALID_SPLIT_FILE = PROCESSED_DATA_DIR / "valid.csv"
 
-# ==========================================
-# Training
-# ==========================================
+CANDIDATE_MODEL_DIR = MODEL_DIR / "candidates"
+MODEL_FILE = MODEL_DIR / "best_model.pkl"
+MODEL_METADATA_FILE = MODEL_DIR / "best_model.json"
 
-RANDOM_STATE = 42
-
-TEST_SIZE = 0.2
+METRICS_DIR = REPORT_DIR / "metrics"
+CANDIDATE_METRICS_DIR = METRICS_DIR / "candidates"
+SUMMARY_METRICS_FILE = METRICS_DIR / "summary.json"
 
 TARGET = "Survived"
-
-# ==========================================
-# Columns
-# ==========================================
 
 DROP_COLUMNS = [
     "PassengerId",
@@ -45,9 +36,15 @@ NUMERIC_FEATURES = [
     "SibSp",
     "Parch",
     "Pclass",
+    "FamilySize",
+    "IsAlone",
+    "FarePerPerson",
 ]
 
 CATEGORICAL_FEATURES = [
     "Sex",
     "Embarked",
+    "Title",
+    "Deck",
+    "AgeGroup",
 ]

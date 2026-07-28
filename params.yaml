@@ -1,0 +1,22 @@
+data:
+  test_size: 0.2
+  random_state: 42
+
+training:
+  cv_folds: 5
+  n_trials: 20
+  n_jobs: 1
+  scoring: roc_auc
+  selection_metric: roc_auc
+
+models:
+  logistic_regression:
+    enabled: true
+  decision_tree:
+    enabled: true
+  random_forest:
+    enabled: true
+  extra_trees:
+    enabled: true
+  gradient_boosting:
+    enabled: true

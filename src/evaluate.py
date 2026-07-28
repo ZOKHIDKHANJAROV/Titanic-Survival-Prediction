@@ -9,37 +9,37 @@ from sklearn.metrics import (
 )
 
 
-def evaluate_model(model, X_valid, y_valid):
-    """
-    Оценивает модель и выводит основные метрики.
-    """
-
+def calculate_metrics(model, X_valid, y_valid):
     predictions = model.predict(X_valid)
-
     probabilities = model.predict_proba(X_valid)[:, 1]
 
-    accuracy = accuracy_score(y_valid, predictions)
+    return {
+        "accuracy": float(accuracy_score(y_valid, predictions)),
+        "precision": float(
+            precision_score(y_valid, predictions, zero_division=0)
+        ),
+        "recall": float(recall_score(y_valid, predictions, zero_division=0)),
+        "f1": float(f1_score(y_valid, predictions, zero_division=0)),
+        "roc_auc": float(roc_auc_score(y_valid, probabilities)),
+        "confusion_matrix": confusion_matrix(
+            y_valid, predictions
+        ).tolist(),
+        "classification_report": classification_report(
+            y_valid,
+            predictions,
+            output_dict=True,
+            zero_division=0,
+        ),
+    }
 
-    precision = precision_score(y_valid, predictions)
 
-    recall = recall_score(y_valid, predictions)
-
-    f1 = f1_score(y_valid, predictions)
-
-    roc_auc = roc_auc_score(y_valid, probabilities)
-
+def print_metrics(model_name, metrics):
     print("=" * 50)
-    print("Model Evaluation")
+    print(f"Model Evaluation: {model_name}")
     print("=" * 50)
-
-    print(f"Accuracy : {accuracy:.4f}")
-    print(f"Precision: {precision:.4f}")
-    print(f"Recall   : {recall:.4f}")
-    print(f"F1-score : {f1:.4f}")
-    print(f"ROC-AUC  : {roc_auc:.4f}")
-
-    print("\nConfusion Matrix")
-    print(confusion_matrix(y_valid, predictions))
-
-    print("\nClassification Report")
-    print(classification_report(y_valid, predictions))
+    print(f"Accuracy : {metrics['accuracy']:.4f}")
+    print(f"Precision: {metrics['precision']:.4f}")
+    print(f"Recall   : {metrics['recall']:.4f}")
+    print(f"F1-score : {metrics['f1']:.4f}")
+    print(f"ROC-AUC  : {metrics['roc_auc']:.4f}")
+    print(f"CV score : {metrics['cv_score']:.4f}")
