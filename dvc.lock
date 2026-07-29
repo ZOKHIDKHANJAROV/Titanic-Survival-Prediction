@@ -9,20 +9,20 @@ stages:
       size: 61194
     - path: requirements.txt
       hash: md5
-      md5: 93949877491160edea2fcc368b5ecb5e
-      size: 175
+      md5: 9b11429bebf977c4910376d0c13b23bb
+      size: 207
     - path: src/config.py
       hash: md5
       md5: f677b3e6ff953ff2fc7ec0b17651307d
       size: 1049
     - path: src/prepare_data.py
       hash: md5
-      md5: acbfd9ae6a48140701ae15b5962aa9b8
-      size: 1857
+      md5: 7ba9f660f7ae2bae4e11b0c17da4f6d7
+      size: 1930
     - path: src/settings.py
       hash: md5
-      md5: 59233722c478584c39ef195010c095de
-      size: 514
+      md5: 4dfa5a3b2ca4144b505effd7a6b98181
+      size: 533
     - path: src/utils.py
       hash: md5
       md5: 1ac167762e38d3db166edcb39d90ffed
@@ -48,8 +48,8 @@ stages:
       nfiles: 2
     - path: requirements.txt
       hash: md5
-      md5: 93949877491160edea2fcc368b5ecb5e
-      size: 175
+      md5: 9b11429bebf977c4910376d0c13b23bb
+      size: 207
     - path: src/config.py
       hash: md5
       md5: f677b3e6ff953ff2fc7ec0b17651307d
@@ -60,20 +60,20 @@ stages:
       size: 1419
     - path: src/feature_engineering.py
       hash: md5
-      md5: 6a85c3147873051404528149a00989b7
-      size: 1632
+      md5: e6f0aeea17cc41745c3222e4228d8202
+      size: 1701
     - path: src/model.py
       hash: md5
-      md5: 6e63eccfbe0ad9b85cf7ba61e446e1f8
-      size: 2007
+      md5: 364e2178e55b71cc5a55c440836a2998
+      size: 2092
     - path: src/preprocessing.py
       hash: md5
-      md5: 05ef9cb574973c6b16919d68d7b51540
-      size: 1276
+      md5: de8f8cc555430f97ba0fc8903aae2d95
+      size: 1331
     - path: src/settings.py
       hash: md5
-      md5: 59233722c478584c39ef195010c095de
-      size: 514
+      md5: 4dfa5a3b2ca4144b505effd7a6b98181
+      size: 533
     - path: src/train.py
       hash: md5
       md5: a3830fad546044610506b333332928ed
@@ -137,32 +137,36 @@ stages:
       nfiles: 5
     - path: requirements.txt
       hash: md5
-      md5: 93949877491160edea2fcc368b5ecb5e
-      size: 175
+      md5: 9b11429bebf977c4910376d0c13b23bb
+      size: 207
     - path: src/config.py
       hash: md5
       md5: f677b3e6ff953ff2fc7ec0b17651307d
       size: 1049
     - path: src/feature_engineering.py
       hash: md5
-      md5: 6a85c3147873051404528149a00989b7
-      size: 1632
+      md5: e6f0aeea17cc41745c3222e4228d8202
+      size: 1701
+    - path: src/mlflow_utils.py
+      hash: md5
+      md5: c90db8558dfab22a2b2445ea45fabcb1
+      size: 1276
     - path: src/model.py
       hash: md5
-      md5: 6e63eccfbe0ad9b85cf7ba61e446e1f8
-      size: 2007
+      md5: 364e2178e55b71cc5a55c440836a2998
+      size: 2092
     - path: src/preprocessing.py
       hash: md5
-      md5: 05ef9cb574973c6b16919d68d7b51540
-      size: 1276
+      md5: de8f8cc555430f97ba0fc8903aae2d95
+      size: 1331
     - path: src/select_model.py
       hash: md5
-      md5: f00b689cbe5471c926ed76eb5d4afb33
-      size: 4076
+      md5: afee2726f53de0c919d1d3df0660c7e4
+      size: 5925
     - path: src/settings.py
       hash: md5
-      md5: 59233722c478584c39ef195010c095de
-      size: 514
+      md5: 4dfa5a3b2ca4144b505effd7a6b98181
+      size: 533
     - path: src/train.py
       hash: md5
       md5: a3830fad546044610506b333332928ed
@@ -174,6 +178,10 @@ stages:
     params:
       params.yaml:
         data.random_state: 42
+        mlflow:
+          enabled: true
+          tracking_uri: sqlite:///mlflow.db
+          experiment_name: titanic-model-comparison
         models:
           logistic_regression:
             enabled: true

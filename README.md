@@ -2,8 +2,8 @@
 
 An end-to-end machine-learning project for predicting Titanic passenger
 survival. It compares multiple classification algorithms, tunes them with
-Optuna, tracks the reproducible experiment pipeline with DVC, and orchestrates
-retraining with Apache Airflow.
+Optuna, tracks reproducible pipeline state with DVC, logs the selected model
+with MLflow, and orchestrates retraining with Apache Airflow.
 
 The final artifact is a self-contained scikit-learn pipeline that accepts raw
 Titanic passenger data and applies feature engineering, preprocessing, and
@@ -16,6 +16,7 @@ prediction in one call.
 - Deterministic Optuna hyperparameter optimization
 - Stratified holdout validation and five-fold cross-validation
 - DVC pipeline with tracked parameters, dependencies, metrics, and models
+- MLflow tracking for the selected model, metrics, parameters, and artifacts
 - Airflow 3 DAG with one dynamically mapped task per enabled model
 - Automatic best-model selection and refitting on the complete training set
 - Docker-based Airflow setup that also works on Windows
@@ -67,10 +68,12 @@ flowchart LR
     K --> L["models/best_model.pkl"]
 ```
 
-DVC and Airflow use the same Python modules:
+DVC, MLflow, and Airflow use the same Python modules:
 
 - **DVC** handles local reproducibility, caching, parameters, metrics, and
   experiment comparison.
+- **MLflow** records the winning model and its validation metrics after model
+  selection.
 - **Airflow** handles orchestration, model-level task mapping, retries, and
   scheduled or manual retraining.
 
@@ -119,6 +122,7 @@ Preprocessing:
 |   |-- config.py
 |   |-- evaluate.py
 |   |-- feature_engineering.py
+|   |-- mlflow_utils.py
 |   |-- model.py
 |   |-- predict.py
 |   |-- prepare_data.py
@@ -235,6 +239,11 @@ training:
   n_jobs: 1
   scoring: roc_auc
   selection_metric: roc_auc
+
+mlflow:
+  enabled: true
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: titanic-model-comparison
 ```
 
 Run an experiment with more Optuna trials without editing the file:
@@ -258,6 +267,32 @@ models:
 ```
 
 The change applies to both DVC and Airflow runs.
+
+## MLflow experiment tracking
+
+MLflow tracking is enabled in `params.yaml`. The `select_best` stage creates
+one run after all candidates have been evaluated. The run contains:
+
+- The selected model name and tuned hyperparameters
+- Validation and cross-validation metrics
+- The serialized winning pipeline
+- Best-model metadata and the model comparison summary
+
+Start the local UI after running the pipeline:
+
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+Then open:
+
+```text
+http://localhost:5000
+```
+
+Set `mlflow.enabled` to `false` to run the DVC or Airflow workflow without
+experiment tracking. The local `mlflow.db`, `mlruns/`, and `mlartifacts/`
+outputs are generated files and are excluded from Git.
 
 ## Direct CLI usage
 

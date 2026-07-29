@@ -9,6 +9,11 @@ training:
   scoring: roc_auc
   selection_metric: roc_auc
 
+mlflow:
+  enabled: true
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: titanic-model-comparison
+
 models:
   logistic_regression:
     enabled: true

@@ -45,6 +45,7 @@ stages:
       - src/config.py
       - src/feature_engineering.py
       - src/model.py
+      - src/mlflow_utils.py
       - src/preprocessing.py
       - src/select_model.py
       - src/settings.py
@@ -52,6 +53,7 @@ stages:
       - src/utils.py
     params:
       - data.random_state
+      - mlflow
       - training.selection_metric
       - models
     outs:

@@ -13,12 +13,69 @@ from src.config import (
     VALID_SPLIT_FILE,
 )
 from src.model import build_pipeline
+from src.mlflow_utils import (
+    end_run,
+    log_artifact,
+    log_metrics,
+    log_model,
+    log_params,
+    setup_mlflow,
+    start_run,
+)
 from src.settings import load_params
 from src.train import enabled_models
 from src.utils import load_json, save_json, save_model
 
 
 METRIC_NAMES = ("accuracy", "precision", "recall", "f1", "roc_auc")
+
+
+def track_selected_model(
+    *,
+    params,
+    model,
+    X_example,
+    metadata,
+    best_result,
+    metadata_path,
+    summary_path,
+):
+    tracking = params.get("mlflow", {})
+    if not tracking.get("enabled", False):
+        return None
+
+    setup_mlflow(
+        experiment_name=tracking["experiment_name"],
+        tracking_uri=tracking["tracking_uri"],
+    )
+    run = start_run(run_name=f"selected-{metadata['model']}")
+    try:
+        log_params(
+            {
+                "model": metadata["model"],
+                "selection_metric": metadata["selection_metric"],
+                "training_rows": metadata["training_rows"],
+                **{
+                    f"best_{key}": value
+                    for key, value in metadata["best_params"].items()
+                },
+            }
+        )
+        log_metrics(
+            {
+                **{
+                    f"validation_{metric}": best_result[metric]
+                    for metric in METRIC_NAMES
+                },
+                "cv_score": metadata["cv_score"],
+            }
+        )
+        log_model(model, X_example)
+        log_artifact(metadata_path)
+        log_artifact(summary_path)
+        return run.info.run_id
+    finally:
+        end_run()
 
 
 def select_and_refit(
@@ -96,11 +153,22 @@ def select_and_refit(
 
     save_json(summary, summary_output)
     save_json(metadata, metadata_output)
+    run_id = track_selected_model(
+        params=params,
+        model=best_pipeline,
+        X_example=X_full,
+        metadata=metadata,
+        best_result=best_result,
+        metadata_path=metadata_output,
+        summary_path=summary_output,
+    )
     print(
         f"Selected '{best_name}' with "
         f"{selection_metric}={best_result[selection_metric]:.4f}. "
         f"Refit on {len(full_data)} rows."
     )
+    if run_id:
+        print(f"Logged selected model to MLflow run {run_id}.")
     return metadata
 
 
