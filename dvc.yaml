@@ -1,0 +1,65 @@
+stages:
+  prepare:
+    cmd: python -m src.prepare_data --params params.yaml
+    deps:
+      - data/train.csv
+      - requirements.txt
+      - src/config.py
+      - src/prepare_data.py
+      - src/settings.py
+      - src/utils.py
+    params:
+      - data
+    outs:
+      - data/processed
+
+  train_models:
+    cmd: python -m src.train --all --params params.yaml
+    deps:
+      - data/processed
+      - requirements.txt
+      - src/config.py
+      - src/evaluate.py
+      - src/feature_engineering.py
+      - src/model.py
+      - src/preprocessing.py
+      - src/settings.py
+      - src/train.py
+      - src/tuning.py
+      - src/utils.py
+    params:
+      - data.random_state
+      - training
+      - models
+    outs:
+      - models/candidates
+      - reports/metrics/candidates
+
+  select_best:
+    cmd: python -m src.select_model --params params.yaml
+    deps:
+      - data/processed
+      - models/candidates
+      - reports/metrics/candidates
+      - requirements.txt
+      - src/config.py
+      - src/feature_engineering.py
+      - src/model.py
+      - src/mlflow_utils.py
+      - src/preprocessing.py
+      - src/select_model.py
+      - src/settings.py
+      - src/train.py
+      - src/utils.py
+    params:
+      - data.random_state
+      - mlflow
+      - training.selection_metric
+      - models
+    outs:
+      - models/best_model.pkl
+      - models/best_model.json:
+          cache: false
+    metrics:
+      - reports/metrics/summary.json:
+          cache: false

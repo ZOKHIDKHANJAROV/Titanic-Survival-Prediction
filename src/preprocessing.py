@@ -1,55 +1,45 @@
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from config import (
+from src.config import (
+    CATEGORICAL_FEATURES,
     DROP_COLUMNS,
     NUMERIC_FEATURES,
-    CATEGORICAL_FEATURES,
 )
 
+
 def drop_columns(df):
-    return df.drop(columns=DROP_COLUMNS)
+    return df.drop(columns=DROP_COLUMNS, errors="ignore")
+
 
 def create_numeric_pipeline():
-    pipeline = Pipeline(
+    return Pipeline(
         steps=[
-            (
-                "imputer",
-                SimpleImputer(strategy="median"),
-            ),
-            (
-                "scaler",
-                StandardScaler(),
-            ),
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
         ]
     )
 
-    return pipeline
 
 def create_categorical_pipeline():
-    pipeline = Pipeline(
+    return Pipeline(
         steps=[
-            (
-                "imputer",
-                SimpleImputer(strategy="most_frequent"),
-            ),
+            ("imputer", SimpleImputer(strategy="most_frequent")),
             (
                 "encoder",
                 OneHotEncoder(
-                    handle_unknown="ignore"
+                    handle_unknown="ignore",
+                    sparse_output=False,
                 ),
             ),
         ]
     )
 
-    return pipeline
 
-# Создаем общий препроцессор.
 def create_preprocessor():
-    preprocessor = ColumnTransformer(
+    return ColumnTransformer(
         transformers=[
             (
                 "numeric",
@@ -63,5 +53,3 @@ def create_preprocessor():
             ),
         ]
     )
-
-    return preprocessor

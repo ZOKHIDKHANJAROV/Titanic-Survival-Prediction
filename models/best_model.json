@@ -1,0 +1,11 @@
+{
+  "best_params": {
+    "C": 0.2054878640884927,
+    "class_weight": null
+  },
+  "cv_score": 0.8689523764288655,
+  "model": "logistic_regression",
+  "selection_metric": "roc_auc",
+  "selection_score": 0.8706192358366271,
+  "training_rows": 891
+}

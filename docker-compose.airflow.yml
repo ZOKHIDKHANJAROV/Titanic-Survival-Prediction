@@ -1,0 +1,24 @@
+services:
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    command: standalone
+    restart: unless-stopped
+    environment:
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__PARALLELISM: "3"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/database/airflow.db
+      PYTHONPATH: /opt/airflow/project
+      TITANIC_PROJECT_ROOT: /opt/airflow/project
+    volumes:
+      - .:/opt/airflow/project
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
+      - airflow_database:/opt/airflow/database
+    ports:
+      - "8080:8080"
+
+volumes:
+  airflow_database:

@@ -1,0 +1,209 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python -m src.prepare_data --params params.yaml
+    deps:
+    - path: data/train.csv
+      hash: md5
+      md5: 2309cc5f04782ed9bb6016d9f4e381cf
+      size: 61194
+    - path: requirements.txt
+      hash: md5
+      md5: 9b11429bebf977c4910376d0c13b23bb
+      size: 207
+    - path: src/config.py
+      hash: md5
+      md5: f677b3e6ff953ff2fc7ec0b17651307d
+      size: 1049
+    - path: src/prepare_data.py
+      hash: md5
+      md5: 7ba9f660f7ae2bae4e11b0c17da4f6d7
+      size: 1930
+    - path: src/settings.py
+      hash: md5
+      md5: 4dfa5a3b2ca4144b505effd7a6b98181
+      size: 533
+    - path: src/utils.py
+      hash: md5
+      md5: 1ac167762e38d3db166edcb39d90ffed
+      size: 619
+    params:
+      params.yaml:
+        data:
+          test_size: 0.2
+          random_state: 42
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 62747b838fdd5fdd583c4c580b997ed1.dir
+      size: 62975
+      nfiles: 2
+  train_models:
+    cmd: python -m src.train --all --params params.yaml
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 62747b838fdd5fdd583c4c580b997ed1.dir
+      size: 62975
+      nfiles: 2
+    - path: requirements.txt
+      hash: md5
+      md5: 9b11429bebf977c4910376d0c13b23bb
+      size: 207
+    - path: src/config.py
+      hash: md5
+      md5: f677b3e6ff953ff2fc7ec0b17651307d
+      size: 1049
+    - path: src/evaluate.py
+      hash: md5
+      md5: 82ef1d6b1f28f4e93fbadcdd3a408dc6
+      size: 1419
+    - path: src/feature_engineering.py
+      hash: md5
+      md5: e6f0aeea17cc41745c3222e4228d8202
+      size: 1701
+    - path: src/model.py
+      hash: md5
+      md5: 364e2178e55b71cc5a55c440836a2998
+      size: 2092
+    - path: src/preprocessing.py
+      hash: md5
+      md5: de8f8cc555430f97ba0fc8903aae2d95
+      size: 1331
+    - path: src/settings.py
+      hash: md5
+      md5: 4dfa5a3b2ca4144b505effd7a6b98181
+      size: 533
+    - path: src/train.py
+      hash: md5
+      md5: a3830fad546044610506b333332928ed
+      size: 4047
+    - path: src/tuning.py
+      hash: md5
+      md5: 9288092ea5dde5b1f8bcc5c0f6173f87
+      size: 4099
+    - path: src/utils.py
+      hash: md5
+      md5: 1ac167762e38d3db166edcb39d90ffed
+      size: 619
+    params:
+      params.yaml:
+        data.random_state: 42
+        models:
+          logistic_regression:
+            enabled: true
+          decision_tree:
+            enabled: true
+          random_forest:
+            enabled: true
+          extra_trees:
+            enabled: true
+          gradient_boosting:
+            enabled: true
+        training:
+          cv_folds: 5
+          n_trials: 20
+          n_jobs: 1
+          scoring: roc_auc
+          selection_metric: roc_auc
+    outs:
+    - path: models/candidates
+      hash: md5
+      md5: 0958b36f06610907eb53654384b231d1.dir
+      size: 6794382
+      nfiles: 5
+    - path: reports/metrics/candidates
+      hash: md5
+      md5: c133fd78b62d7461af095829a64f28ec.dir
+      size: 6157
+      nfiles: 5
+  select_best:
+    cmd: python -m src.select_model --params params.yaml
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 62747b838fdd5fdd583c4c580b997ed1.dir
+      size: 62975
+      nfiles: 2
+    - path: models/candidates
+      hash: md5
+      md5: 0958b36f06610907eb53654384b231d1.dir
+      size: 6794382
+      nfiles: 5
+    - path: reports/metrics/candidates
+      hash: md5
+      md5: c133fd78b62d7461af095829a64f28ec.dir
+      size: 6157
+      nfiles: 5
+    - path: requirements.txt
+      hash: md5
+      md5: 9b11429bebf977c4910376d0c13b23bb
+      size: 207
+    - path: src/config.py
+      hash: md5
+      md5: f677b3e6ff953ff2fc7ec0b17651307d
+      size: 1049
+    - path: src/feature_engineering.py
+      hash: md5
+      md5: e6f0aeea17cc41745c3222e4228d8202
+      size: 1701
+    - path: src/mlflow_utils.py
+      hash: md5
+      md5: c90db8558dfab22a2b2445ea45fabcb1
+      size: 1276
+    - path: src/model.py
+      hash: md5
+      md5: 364e2178e55b71cc5a55c440836a2998
+      size: 2092
+    - path: src/preprocessing.py
+      hash: md5
+      md5: de8f8cc555430f97ba0fc8903aae2d95
+      size: 1331
+    - path: src/select_model.py
+      hash: md5
+      md5: afee2726f53de0c919d1d3df0660c7e4
+      size: 5925
+    - path: src/settings.py
+      hash: md5
+      md5: 4dfa5a3b2ca4144b505effd7a6b98181
+      size: 533
+    - path: src/train.py
+      hash: md5
+      md5: a3830fad546044610506b333332928ed
+      size: 4047
+    - path: src/utils.py
+      hash: md5
+      md5: 1ac167762e38d3db166edcb39d90ffed
+      size: 619
+    params:
+      params.yaml:
+        data.random_state: 42
+        mlflow:
+          enabled: true
+          tracking_uri: sqlite:///mlflow.db
+          experiment_name: titanic-model-comparison
+        models:
+          logistic_regression:
+            enabled: true
+          decision_tree:
+            enabled: true
+          random_forest:
+            enabled: true
+          extra_trees:
+            enabled: true
+          gradient_boosting:
+            enabled: true
+        training.selection_metric: roc_auc
+    outs:
+    - path: models/best_model.json
+      hash: md5
+      md5: 9f9ec9eb771864c9d698ac7eaf4418e5
+      size: 256
+    - path: models/best_model.pkl
+      hash: md5
+      md5: 3e5beb04ad6136a30ada705fee316f98
+      size: 5846
+    - path: reports/metrics/summary.json
+      hash: md5
+      md5: 5a9689b00e5b5e572ff4db4f6251b8d3
+      size: 1133
